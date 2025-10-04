@@ -1,15 +1,17 @@
 package com.shopizer.domain.authentication.services;
 
 import java.util.Optional;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface JwtService {
-    Optional<User> getUserFromJwtToken(String token) throws BadRequestException;
+    Optional<User> getUserFromJwtToken(String token) throws UsernameNotFoundException;
 
     Optional<String> getUsernameFromJwtToken(String token);
 
-    boolean validateJwtToken(String authToken, String networkIp);
+    boolean validateJwtToken(String authToken);
 
-    String generateToken(User userDetails, String uuid, int times, String type);
+  boolean validateRefreshJwtToken(String refreshToken);
+
+  String generateToken(User userDetails, String uuid, int times, String type);
 }

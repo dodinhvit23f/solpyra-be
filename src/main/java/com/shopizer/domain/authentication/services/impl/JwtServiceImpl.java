@@ -19,10 +19,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -35,14 +35,14 @@ public class JwtServiceImpl implements JwtService {
   final SecretKey secretKeyJwt;
 
   @Override
-  public Optional<User> getUserFromJwtToken(String token) throws BadRequestException {
+  public Optional<User> getUserFromJwtToken(String token) throws UsernameNotFoundException {
     Claims claims = getClaims(token);
 
     String userName = claims.get(Constant.USER_DETAIL, String.class);
     String password = claims.get(Constant.PASSWORD, String.class);
 
     if (ObjectUtils.isEmpty(claims.get(Constant.AUTHORITY))) {
-      throw new BadRequestException(ApplicationMessage.AuthenticationMessage.AUTHORITY_IS_EMPTY);
+      throw new UsernameNotFoundException(ApplicationMessage.AuthenticationMessage.AUTHORITY_IS_EMPTY);
     }
 
     List<SimpleGrantedAuthority> authorities = claims.get(Constant.AUTHORITY, List.class).stream()
@@ -59,13 +59,24 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
-  public boolean validateJwtToken(String authToken, String networkIp) {
+  public boolean validateJwtToken(String authToken) {
     try {
       Jwts.parser()
           .verifyWith(secretKeyJwt)
           .build()
           .parseSignedClaims(authToken.replace(Constant.BEARER, "")).getPayload();
       return Boolean.TRUE;
+    } catch (IllegalArgumentException e) {
+      log.error("JWT claims string is empty: {}", e.getMessage());
+    }
+
+    return Boolean.FALSE;
+  }
+
+  @Override
+  public boolean validateRefreshJwtToken(String refreshToken) {
+    try {
+      return getClaims(refreshToken).get(Constant.TYPE).equals(Constant.REFRESH);
     } catch (IllegalArgumentException e) {
       log.error("JWT claims string is empty: {}", e.getMessage());
     }

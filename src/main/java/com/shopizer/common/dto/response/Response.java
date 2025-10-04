@@ -1,6 +1,8 @@
 package com.shopizer.common.dto.response;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Response<T> {
     private String traceId;
-    private String message;
-    List<String> extraMessage;
+    private Set<String> errorCodes;
+    private Map<String,String> extraMessage;
     private T data;
 }

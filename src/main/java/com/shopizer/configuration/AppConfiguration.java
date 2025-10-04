@@ -37,4 +37,13 @@ public class AppConfiguration {
     return new TimeBasedOneTimePasswordGenerator();
   }
 
+  @Bean
+  public MessageSource messageSource() {
+    ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+    messageSource.setBasename("classpath:messages");
+    messageSource.setDefaultEncoding("UTF-8");
+    messageSource.setUseCodeAsDefaultMessage(true);
+    return messageSource;
+  }
+
 }

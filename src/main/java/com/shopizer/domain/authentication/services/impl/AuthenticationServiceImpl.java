@@ -17,6 +17,7 @@ import com.shopizer.domain.authentication.services.AuthenticationService;
 import com.shopizer.domain.authentication.services.JwtService;
 import com.shopizer.entities.Role;
 import com.shopizer.entities.Users;
+import com.shopizer.exception.NotFoundException;
 import java.io.ByteArrayOutputStream;
 import java.security.InvalidKeyException;
 import java.time.Instant;
@@ -31,10 +32,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.coyote.BadRequestException;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -57,15 +59,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   String appName;
 
   @Override
-  public SignInResponse signIn(SignInRequest signInRequest) throws BadRequestException {
+  public SignInResponse signIn(SignInRequest signInRequest) throws NotFoundException {
 
     Users user = authenticationRepository.findByUserNameAndIsDeleted(signInRequest.getUsername(),
             Boolean.FALSE)
-        .orElseThrow(() -> new BadRequestException(
+        .orElseThrow(() -> new NotFoundException(
             ApplicationMessage.AuthenticationMessage.USER_OR_PASSWORD_NOT_EXIST));
 
     if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword())) {
-      throw new BadRequestException(
+      log.error("Trace id {} login with not exist user {}",
+          MDC.get(Constant.TRACE_ID), signInRequest.getUsername());
+      throw new NotFoundException(
           ApplicationMessage.AuthenticationMessage.USER_OR_PASSWORD_NOT_EXIST);
     }
 
@@ -87,12 +91,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   public SignInResponse signInWithMFA(String authenticationToken, String otpCode)
-      throws BadRequestException {
+      throws BadRequestException, NotFoundException {
 
     User userFromToken = jwtService.getUserFromJwtToken(authenticationToken).orElseThrow(
-        () -> new BadRequestException(ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
+        () -> new NotFoundException(ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
     Users users = authenticationRepository.findByUserName(userFromToken.getUsername()).orElseThrow(
-        () -> new BadRequestException(ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
+        () -> new NotFoundException(ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
 
     if (isNotRightOtp(users.getOtpSecret(), otpCode)) {
       throw new BadRequestException(ApplicationMessage.AuthenticationMessage.OTP_NOT_CORRECT);
@@ -102,12 +106,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
-  public TokenAuthenticationResponse refreshToken(String refreshToken) throws BadRequestException {
+  public SignInResponse refreshToken(String refreshToken)
+      throws BadRequestException, NotFoundException {
+
+    if(!jwtService.validateRefreshJwtToken(refreshToken)){
+        throw new  AuthenticationCredentialsNotFoundException(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN);
+    }
+
     User userRefreshToken = jwtService.getUserFromJwtToken(refreshToken).orElseThrow(
-        () -> new BadRequestException(ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
+        () -> new NotFoundException(ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
+
     Users users = authenticationRepository.findByUserName(userRefreshToken.getUsername())
         .orElseThrow(
-            () -> new BadRequestException(ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
+            () -> new NotFoundException(ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
 
     if (ObjectUtils.isEmpty(users.getRole())) {
       throw new BadRequestException(ApplicationMessage.AuthenticationMessage.USER_NOT_ACTIVE);
@@ -118,13 +129,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   public void changeUserPassword(String authenticationToken, ChangePasswordRequest changePassword)
-      throws BadRequestException {
+      throws BadRequestException, NotFoundException {
     String username = jwtService.getUsernameFromJwtToken(authenticationToken)
-        .orElseThrow(() -> new UsernameNotFoundException(
+        .orElseThrow(() -> new NotFoundException(
             ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
 
     Users user = authenticationRepository.findByUserName(username)
-        .orElseThrow(() -> new UsernameNotFoundException(
+        .orElseThrow(() -> new NotFoundException(
             ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
 
     if (user.isSSOUser() && ObjectUtils.isEmpty(user.getPassword())) {
@@ -146,11 +157,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       OTPGenerateRequest otpGenerate) {
     try {
       User user = jwtService.getUserFromJwtToken(authenticationToken)
-          .orElseThrow(() -> new UsernameNotFoundException(
+          .orElseThrow(() -> new NotFoundException(
               ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
 
       Users users = authenticationRepository.findByUserName(user.getUsername())
-          .orElseThrow(() -> new UsernameNotFoundException(
+          .orElseThrow(() -> new NotFoundException(
               ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
 
       if (users.isHaveMfa() && isNotRightOtp(users.getOtpSecret(), otpGenerate.getOldOTP())) {
@@ -182,12 +193,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
-  public void verifyOtp(String authenticationToken, String otpCode) throws BadRequestException {
+  public void verifyOtp(String authenticationToken, String otpCode)
+      throws NotFoundException, BadRequestException {
     User user = jwtService.getUserFromJwtToken(authenticationToken)
-        .orElseThrow(() -> new UsernameNotFoundException(
+        .orElseThrow(() -> new NotFoundException(
             ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
     Users users = authenticationRepository.findByUserName(user.getUsername())
-        .orElseThrow(() -> new UsernameNotFoundException(
+        .orElseThrow(() -> new NotFoundException(
             ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
 
     if (!users.isHaveMfa()) {
@@ -200,10 +212,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
   }
 
-  private SignInResponse createJwtToken(Users user) throws BadRequestException {
+  private SignInResponse createJwtToken(Users user) throws NotFoundException {
 
     if (ObjectUtils.isEmpty(user.getRole())) {
-      throw new BadRequestException(ApplicationMessage.AuthenticationMessage.USER_NOT_ACTIVE);
+      throw new NotFoundException(ApplicationMessage.AuthenticationMessage.USER_NOT_ACTIVE);
     }
 
     List<SimpleGrantedAuthority> roles = Stream.of(user.getRole())
@@ -219,6 +231,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         .refreshToken(
             jwtService.generateToken(loginUser, uuid, endAfter + extraTime, Constant.REFRESH))
         .roles(roles.stream().map(SimpleGrantedAuthority::getAuthority).toList())
+        .haveMFA(user.isHaveMfa())
         .build();
   }
 

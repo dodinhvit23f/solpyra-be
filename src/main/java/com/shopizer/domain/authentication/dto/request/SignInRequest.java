@@ -13,5 +13,5 @@ public class SignInRequest {
     @NotEmpty(message = ApplicationMessage.AuthenticationMessage.USERNAME_IS_EMPTY)
     String username;
     @NotEmpty(message = ApplicationMessage.AuthenticationMessage.PASSWORD_IS_EMPTY)
-    String password;
+      String password;
 }

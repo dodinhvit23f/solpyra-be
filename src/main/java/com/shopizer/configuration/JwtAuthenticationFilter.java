@@ -1,22 +1,31 @@
 package com.shopizer.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shopizer.common.dto.response.Response;
 import com.shopizer.constant.ApplicationMessage;
 import com.shopizer.domain.authentication.services.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,47 +51,65 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
   final JwtService jwtService;
   final HandlerExceptionResolver handlerExceptionResolver;
   final ObjectMapper objectMapper;
+  final MessageSource messageSource;
 
   public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtService jwtService,
-      HandlerExceptionResolver handlerExceptionResolver, ObjectMapper objectMapper) {
+      HandlerExceptionResolver handlerExceptionResolver, ObjectMapper objectMapper,
+      MessageSource messageSource) {
     super(authenticationManager);
     this.jwtService = jwtService;
     this.handlerExceptionResolver = handlerExceptionResolver;
     this.objectMapper = objectMapper;
+    this.messageSource = messageSource;
+  }
+
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    return whiteList.stream()
+        .anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI()));
   }
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain chain) throws IOException, ServletException {
 
-    AntPathMatcher pathMatcher = new AntPathMatcher();
-    String uri = request.getRequestURI();
-
-    boolean isWhitelisted = whiteList.stream()
-        .anyMatch(pattern -> pathMatcher.match(pattern, uri));
-
-
-      if (!isWhitelisted &&
-          !request.getMethod().equalsIgnoreCase(HttpMethod.OPTIONS.name())) {
-        String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (ObjectUtils.isEmpty(jwtToken) ||
-            !jwtService.validateJwtToken(jwtToken, request.getRemoteAddr())) {
-          throw new UsernameNotFoundException(
-              ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST);
-        }
-
-        User userDetail = jwtService.getUserFromJwtToken(jwtToken)
-            .orElseThrow(() -> new UsernameNotFoundException(
-                ApplicationMessage.AuthenticationMessage.USER_NOT_EXIST));
-
-        UsernamePasswordAuthenticationToken authenticationToken =
-            new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
-        authenticationToken.setDetails(new WebAuthenticationDetails(request));
-
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+    String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+    try {
+      if (ObjectUtils.isEmpty(jwtToken) ||
+          !jwtService.validateJwtToken(jwtToken)) {
+        throw new AuthenticationCredentialsNotFoundException(
+            ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN);
       }
 
-      super.doFilterInternal(request, response, chain);
+      User userDetail = jwtService.getUserFromJwtToken(jwtToken)
+          .orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
+              ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN));
+
+      UsernamePasswordAuthenticationToken authenticationToken =
+          new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
+      authenticationToken.setDetails(new WebAuthenticationDetails(request));
+
+      SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+      doFilter(request, response, chain);
+    } catch (AuthenticationCredentialsNotFoundException | ExpiredJwtException
+             | MalformedJwtException | SignatureException e) {
+
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.setContentType("application/json");
+      response.getWriter().write(objectMapper.writeValueAsString(Response.<Object>builder()
+          .errorCodes(Set.of(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN))
+          .extraMessage(Map.of(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN,
+              messageSource.getMessage(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN, null,
+                  Locale.getDefault())))
+          .traceId(UUID.randomUUID().toString())
+          .build()));
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+    }
+
   }
 }

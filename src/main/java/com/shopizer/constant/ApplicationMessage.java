@@ -12,6 +12,7 @@ public class ApplicationMessage {
     public static final String OLD_PASSWORD_NOT_EMPTY = "ERROR_008";
     public static final String NEW_PASSWORD_NOT_EMPTY = "ERROR_009";
     public static final String PASSWORD_NOT_CORRECT = "ERROR_010";
+    public static final String INVAlID_TOKEN = "ERROR_011";
   }
 
 }

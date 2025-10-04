@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     create_date TIMESTAMP,
     update_date DATE,
     role_id BIGINT NOT NULL,
-    isdeleted BOOLEAN DEFAULT false,
+    is_deleted BOOLEAN DEFAULT false,
     CONSTRAINT uk_user_name UNIQUE (user_name),
     CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES role (id)
     );
