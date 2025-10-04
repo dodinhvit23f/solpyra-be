@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS role (
+    id BIGINT PRIMARY KEY DEFAULT nextval('role_id_seq'),
+    version BIGINT DEFAULT 0,
+    name VARCHAR(255) NOT NULL UNIQUE
+);

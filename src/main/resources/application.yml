@@ -23,6 +23,24 @@ spring:
       max-file-size: 4MB
       max-request-size: 5MB
       resolve-lazily: false
+  flyway:
+    enabled: ${FLY_WAY_ENABLE}
+    locations: classpath:migration
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    host: ENC(${DB_HOST})
+    database-name: ENC(${DATABASE_NAME})
+    url: jdbc:postgresql://${spring.datasource.host}:${DB_PORT}/${spring.datasource.database-name}
+    username: ENC(${DB_USERNAME})
+    password: ENC(${DB_USER_PASSWORD})
+    hikari:
+      schema: ENC(${DB_SCHEMA})
+      minimum-idle: 2
+      maximum-pool-size: 10
+      idle-timeout: 30000         # 30s - release idle connections
+      max-lifetime: 600000        # 10m - recycle connections to avoid DB timeouts
+      connection-timeout: 30000   # 30s - wait for connection
+
 
 jasypt:
   encryptor:
@@ -31,31 +49,7 @@ jasypt:
 
 application:
   jwt:
-    secret: ${JWT_SECRET}
-    end-after: ${JWT_TIMEOUT:180}
-    extra-time: ${JWT_EXTRA_TIME:43200}
-  white-list: /authentication/v1/sign-in,/authentication/v1/forgot-password,/favicon.ico,/external/**,/zalo/v1/**
-  order-prefix: ${ORDER_PREFIX}
-  bot:
-    username: ENC(${BOT_USERNAME})
-    token: ENC(${BOT_TOKEN})
-
-
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
-        orm:
-          jdbc:
-            bind: TRACE
-      spring:
-        framework:
-          jdbc:
-            core:
-              JdbcTemplate: DEBUG
-              StatementCreatorUtils: TRACE
+    secret: ENC(${JWT_SECRET})
+    end-after: ${JWT_TIMEOUT}
+    extra-time: ${JWT_EXTRA_TIME}
+  white-list: ${WHITE_LIST}
