@@ -1,0 +1,61 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: shopizer-be
+  jpa:
+    properties:
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  jackson:
+    property-naming-strategy: LOWER_CAMEL_CASE
+    default-property-inclusion: non_empty
+    parser:
+      allow-numeric-leading-zeros: true
+      allow-non-numeric-numbers: true
+      use-fast-big-number-parser: true
+    deserialization:
+      accept-float-as-int: false
+  servlet:
+    multipart:
+      max-file-size: 4MB
+      max-request-size: 5MB
+      resolve-lazily: false
+
+jasypt:
+  encryptor:
+    algorithm: PBEWITHHMACSHA512ANDAES_256
+    password: ${JASYPT_PASSWORD}
+
+application:
+  jwt:
+    secret: ${JWT_SECRET}
+    end-after: ${JWT_TIMEOUT:180}
+    extra-time: ${JWT_EXTRA_TIME:43200}
+  white-list: /authentication/v1/sign-in,/authentication/v1/forgot-password,/favicon.ico,/external/**,/zalo/v1/**
+  order-prefix: ${ORDER_PREFIX}
+  bot:
+    username: ENC(${BOT_USERNAME})
+    token: ENC(${BOT_TOKEN})
+
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+        orm:
+          jdbc:
+            bind: TRACE
+      spring:
+        framework:
+          jdbc:
+            core:
+              JdbcTemplate: DEBUG
+              StatementCreatorUtils: TRACE
