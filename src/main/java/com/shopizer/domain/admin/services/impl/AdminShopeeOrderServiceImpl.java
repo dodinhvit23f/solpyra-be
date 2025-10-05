@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -37,9 +36,10 @@ public class AdminShopeeOrderServiceImpl implements AdminShopeeOrderService {
     Page<ShopeeOrder> pageOrder = null;
 
     if (!ObjectUtils.isEmpty(request.getSearch())) {
-      searchCondition = searchCondition.and(shopeeOrder.orderId.eq(request.getSearch())
-          .or(shopeeOrder.product.productName.contains(request.getSearch())
-              .or(shopeeOrder.product.storeName.contains(request.getSearch()))));
+      String searchValue = request.getSearch();
+      searchCondition = searchCondition.and(shopeeOrder.orderId.eq(searchValue)
+          .or(shopeeOrder.product.productName.containsIgnoreCase(searchValue)
+              .or(shopeeOrder.product.storeName.containsIgnoreCase(searchValue))));
     }
 
     if (Objects.nonNull(request.getStatuses())) {

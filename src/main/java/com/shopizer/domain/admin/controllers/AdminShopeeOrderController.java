@@ -31,7 +31,10 @@ public class AdminShopeeOrderController {
   @PostMapping("/import")
   ResponseEntity<Object> importFileOrders(@RequestParam("file") MultipartFile file) {
     adminShopeeOrderImportService.importShopeeOrderByCsvFile(file);
-    return ResponseEntity.ok().build();
+
+    return ResponseEntity.ok(Response.<PageObject>builder()
+        .traceId(MDC.get(Constant.TRACE_ID))
+        .build());
   }
 
   @GetMapping("/list")

@@ -16,6 +16,7 @@ public class ApplicationMessage {
     public static final String INVALID_FILE_TYPE = "ERROR_012";
     public static final String INVALID_CONTENT_TYPE = "ERROR_013";
     public static final String EMPTY_FILE = "ERROR_014";
+    public static final String PRODUCT_NOT_EXIST = "ERROR_015";
   }
 
 }

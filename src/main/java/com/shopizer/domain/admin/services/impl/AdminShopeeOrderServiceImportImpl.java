@@ -20,6 +20,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -78,7 +80,9 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
     mappingProduct(savedOrder, products);
 
     adminShopeeProductRepository.saveAll(products.values());
-    adminShopeeOrderRepository.saveAll(savedOrder.values());
+    adminShopeeOrderRepository.saveAll(savedOrder.values().stream()
+        .sorted(Comparator.comparing(ShopeeOrder::getOrderDate))
+        .toList());
 
     log.info("Done finish file {}.", file.getOriginalFilename());
   }
@@ -136,7 +140,7 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
         BigDecimal platformCommissionRate = commissionRate;
 
         if (totalCommission.compareTo(BigDecimal.valueOf(COMMISSION_FOOL_PRICE)) > 0) {
-          userCommission = totalCommission.multiply( BigDecimal.valueOf(USER_MAX_COMMISSION_RATE));
+          userCommission = totalCommission.multiply(BigDecimal.valueOf(USER_MAX_COMMISSION_RATE));
           platformCommission = totalCommission.subtract(userCommission);
           userCommissionRate = commissionRate.multiply(
               BigDecimal.valueOf(USER_MAX_COMMISSION_RATE));
