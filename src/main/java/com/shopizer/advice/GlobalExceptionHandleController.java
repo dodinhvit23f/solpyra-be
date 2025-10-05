@@ -40,7 +40,7 @@ public class GlobalExceptionHandleController {
 
   private final MessageSource messageSource;
 
-  @ExceptionHandler({BadRequestException.class, ValidationException.class})
+  @ExceptionHandler({BadRequestException.class, ValidationException.class, IllegalArgumentException.class})
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public Response<Object> handleBadRequestException(Exception e) {
     return getObjectResponse(e.getMessage());

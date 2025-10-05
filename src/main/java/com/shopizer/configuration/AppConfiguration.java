@@ -1,7 +1,10 @@
 package com.shopizer.configuration;
 
 import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
+import com.querydsl.jpa.JPQLTemplates;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.jsonwebtoken.security.Keys;
+import jakarta.persistence.EntityManager;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +47,11 @@ public class AppConfiguration {
     messageSource.setDefaultEncoding("UTF-8");
     messageSource.setUseCodeAsDefaultMessage(true);
     return messageSource;
+  }
+
+  @Bean
+  public JPAQueryFactory jpaQueryFactory(EntityManager em) {
+    return new JPAQueryFactory(JPQLTemplates.DEFAULT, em);
   }
 
 }

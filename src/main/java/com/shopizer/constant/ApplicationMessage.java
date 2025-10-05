@@ -13,6 +13,9 @@ public class ApplicationMessage {
     public static final String NEW_PASSWORD_NOT_EMPTY = "ERROR_009";
     public static final String PASSWORD_NOT_CORRECT = "ERROR_010";
     public static final String INVAlID_TOKEN = "ERROR_011";
+    public static final String INVALID_FILE_TYPE = "ERROR_012";
+    public static final String INVALID_CONTENT_TYPE = "ERROR_013";
+    public static final String EMPTY_FILE = "ERROR_014";
   }
 
 }
