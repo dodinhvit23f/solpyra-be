@@ -17,6 +17,8 @@ public class ApplicationMessage {
     public static final String INVALID_CONTENT_TYPE = "ERROR_013";
     public static final String EMPTY_FILE = "ERROR_014";
     public static final String PRODUCT_NOT_EXIST = "ERROR_015";
+    public static final String NOT_FOUND_GOOGLE_ID_TOKEN = "ERROR_016";
+    public static final String ROLE_NOT_EXIST = "ERROR_017";
   }
 
 }

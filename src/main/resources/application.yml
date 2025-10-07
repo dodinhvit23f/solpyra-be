@@ -49,6 +49,9 @@ jasypt:
     password: ${JASYPT_PASSWORD}
 
 application:
+  google:
+    credential: ENC(${GOOGLE_DRIVE_CREDENTIAL})
+    client-id: ENC(${GOOGLE_CLIENT_ID})
   jwt:
     secret: ENC(${JWT_SECRET})
     end-after: ${JWT_TIMEOUT}

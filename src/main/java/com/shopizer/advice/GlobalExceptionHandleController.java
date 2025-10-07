@@ -64,16 +64,15 @@ public class GlobalExceptionHandleController {
     return Response.<String>builder()
         .errorCodes(new HashSet<>(errors.values()))
         .extraMessage(extraMessage)
-        .traceId(UUID.randomUUID().toString())
+        .traceId(MDC.get(Constant.TRACE_ID))
         .build();
   }
 
   private Response<Object> getObjectResponse(String e) {
-    String traceId = MDC.get(Constant.TRACE_ID);
     return Response.<Object>builder()
         .errorCodes(Set.of(e))
         .extraMessage(Map.of(e, getMessage(e)))
-        .traceId(traceId)
+        .traceId(MDC.get(Constant.TRACE_ID))
         .build();
   }
 

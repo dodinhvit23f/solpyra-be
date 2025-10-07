@@ -5,6 +5,7 @@ import com.shopizer.domain.authentication.dto.request.OTPGenerateRequest;
 import com.shopizer.domain.authentication.dto.request.SignInRequest;
 import com.shopizer.domain.authentication.dto.response.SignInResponse;
 import com.shopizer.domain.authentication.dto.response.TokenAuthenticationResponse;
+import com.shopizer.entities.Users;
 import com.shopizer.exception.NotFoundException;
 import java.io.ByteArrayOutputStream;
 import org.apache.coyote.BadRequestException;
@@ -27,10 +28,15 @@ public interface AuthenticationService {
       throws BadRequestException, NotFoundException;
 
   @Transactional
+  Users saveSsoUser(String email);
+
+  @Transactional
   ByteArrayOutputStream generateOTP(String authenticationToken,
       OTPGenerateRequest otpGenerate);
 
   @Transactional
   void verifyOtp(String authenticationToken, String otpCode)
       throws BadRequestException, NotFoundException;
+
+  SignInResponse createJwtToken(Users user) throws NotFoundException;
 }

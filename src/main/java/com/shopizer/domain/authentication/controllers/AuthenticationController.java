@@ -1,6 +1,7 @@
 package com.shopizer.domain.authentication.controllers;
 
 import com.shopizer.common.dto.response.Response;
+import com.shopizer.constant.Constant;
 import com.shopizer.domain.authentication.dto.request.SignInRequest;
 import com.shopizer.domain.authentication.dto.request.SignInWithOTPRequest;
 import com.shopizer.domain.authentication.dto.response.SignInResponse;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.slf4j.MDC;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +42,7 @@ public class AuthenticationController {
   ResponseEntity<Response<Object>> verifyToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken){
     return ResponseEntity
         .ok(Response.builder()
-            .traceId(UUID.randomUUID().toString())
+            .traceId(MDC.get(Constant.TRACE_ID))
             .data(accessToken)
             .build());
   }
