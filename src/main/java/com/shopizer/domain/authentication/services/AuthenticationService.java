@@ -4,12 +4,11 @@ import com.shopizer.domain.authentication.dto.request.ChangePasswordRequest;
 import com.shopizer.domain.authentication.dto.request.OTPGenerateRequest;
 import com.shopizer.domain.authentication.dto.request.SignInRequest;
 import com.shopizer.domain.authentication.dto.response.SignInResponse;
-import com.shopizer.domain.authentication.dto.response.TokenAuthenticationResponse;
 import com.shopizer.entities.Users;
 import com.shopizer.exception.NotFoundException;
 import java.io.ByteArrayOutputStream;
+import java.util.Date;
 import org.apache.coyote.BadRequestException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface AuthenticationService {
@@ -27,6 +26,9 @@ public interface AuthenticationService {
   void changeUserPassword(String authenticationToken, ChangePasswordRequest changePassword)
       throws BadRequestException, NotFoundException;
 
+  SignInResponse createJwtToken(Users user, int accessTokenExpired, int refreshTokenExpired)
+      throws NotFoundException;
+
   @Transactional
   Users saveSsoUser(String email);
 
@@ -38,5 +40,4 @@ public interface AuthenticationService {
   void verifyOtp(String authenticationToken, String otpCode)
       throws BadRequestException, NotFoundException;
 
-  SignInResponse createJwtToken(Users user) throws NotFoundException;
 }

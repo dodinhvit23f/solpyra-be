@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +23,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class SsoAuthenticationServiceImpl implements SsoAuthenticationService {
 
+  @Value("${application.jwt.end-after}")
+  int accessTimeOut;
+  @Value("${application.jwt.extra-time}")
+  int refreshTimeOut;
+
   final AuthenticationRepository authenticationRepository;
   final GoogleDriverService googleDriverService;
   final AuthenticationService authenticationService;
   final GoogleIdTokenVerifier googleIdTokenVerifier;
+
 
   public SsoAuthenticationServiceImpl(AuthenticationRepository authenticationRepository,
       GoogleDriverService googleDriverService,
@@ -54,9 +61,18 @@ public class SsoAuthenticationServiceImpl implements SsoAuthenticationService {
     String email = (String) payload.get("email");
     boolean emailVerified = Boolean.TRUE.equals(payload.getEmailVerified());
 
+    log.info("Google mail {}, ID {} try to login: ", email, sub);
+
+    if (!emailVerified) {
+      log.error("Email {} not verified", email);
+      throw new AuthenticationCredentialsNotFoundException(
+          AuthenticationMessage.EMAIL_NOT_VERIFIED);
+    }
+
     Users user = authenticationRepository.findByUserName(email)
         .orElseGet(() -> authenticationService.saveSsoUser(email));
 
-      return authenticationService.createJwtToken(user);
+
+    return authenticationService.createJwtToken(user, accessTimeOut, refreshTimeOut);
   }
 }

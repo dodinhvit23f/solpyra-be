@@ -17,6 +17,7 @@ public class GoogleDriverServiceImpl implements GoogleDriverService {
   @Override
   public GoogleIdToken getGoogleIdToken(String idToken)
       throws GeneralSecurityException, IOException {
-    return verifier.verify(idToken);
+    GoogleIdToken googleIdToken = verifier.verify(idToken);
+    return googleIdToken;
   }
 }

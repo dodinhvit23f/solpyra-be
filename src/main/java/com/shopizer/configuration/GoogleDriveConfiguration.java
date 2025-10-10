@@ -48,6 +48,7 @@ public class GoogleDriveConfiguration {
     return new GoogleIdTokenVerifier.Builder(
         new GooglePublicKeysManager.Builder(netHttpTransport, GsonFactory.getDefaultInstance()).build())
         .setAudience(Collections.singletonList(googleClientId))
+        .setAcceptableTimeSkewSeconds(2629800)
         .build();
   }
 

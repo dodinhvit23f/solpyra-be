@@ -3,11 +3,8 @@ package com.shopizer.domain.authentication.services.impl;
 import com.shopizer.constant.ApplicationMessage;
 import com.shopizer.constant.Constant;
 import com.shopizer.domain.authentication.services.JwtService;
-import com.shopizer.util.Utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import java.time.Instant;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -85,10 +82,7 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
-  public String generateToken(User userDetails, String uuid, int times, String type) {
-    Date now = Date.from(Instant.now());
-    Date expiryDate = Utils.plusDate(now, Calendar.MINUTE, times);
-
+  public String generateToken(User userDetails, String uuid, Date expiryDate, String type) {
     Map<String, Object> claims = new HashMap<>();
 
     claims.put(Constant.USER_DETAIL, userDetails.getUsername());
@@ -101,7 +95,7 @@ public class JwtServiceImpl implements JwtService {
 
     return Jwts.builder()
         .claims(claims)
-        .issuedAt(now)
+        .issuedAt(new Date())
         .expiration(expiryDate)
         .audience()
         .and()

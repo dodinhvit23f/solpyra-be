@@ -18,13 +18,14 @@ import com.shopizer.domain.authentication.services.JwtService;
 import com.shopizer.entities.Role;
 import com.shopizer.entities.Users;
 import com.shopizer.exception.NotFoundException;
+import com.shopizer.util.Utils;
 import com.sun.jdi.InternalException;
 import java.io.ByteArrayOutputStream;
 import java.security.InvalidKeyException;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
@@ -48,6 +49,7 @@ import org.springframework.util.ObjectUtils;
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
+  static final int OTP_TIMEOUT = 3;
   final AuthenticationRepository authenticationRepository;
   final AuthenticationRoleRepository authenticationRoleRepository;
   final JwtService jwtService;
@@ -55,9 +57,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   final TimeBasedOneTimePasswordGenerator timeBasedOneTimePasswordGenerator;
 
   @Value("${application.jwt.end-after}")
-  int endAfter;
+  int accessTimeOut;
   @Value("${application.jwt.extra-time}")
-  int extraTime;
+  int refreshTimeOut;
   @Value("${spring.application.name}")
   String appName;
 
@@ -77,13 +79,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     if (!user.isHaveMfa() && user.getRole().getName().equals(Constant.USER)) {
-      return createJwtToken(user);
+      return createJwtToken(user, accessTimeOut, refreshTimeOut);
     }
 
     User userDetail = new User(user.getUserName(),
         passwordEncoder.encode(signInRequest.getPassword()),
         List.of(new SimpleGrantedAuthority(Constant.UN_VALIDATE)));
-    String token = jwtService.generateToken(userDetail, UUID.randomUUID().toString(), 3,
+
+    String token = jwtService.generateToken(userDetail,
+        MDC.get(Constant.TRACE_ID), Utils.plusDate(new Date(), Calendar.MINUTE, OTP_TIMEOUT),
         Constant.ACCESS);
 
     return SignInResponse.builder()
@@ -105,7 +109,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       throw new BadRequestException(AuthenticationMessage.OTP_NOT_CORRECT);
     }
 
-    return createJwtToken(users);
+    return createJwtToken(users, accessTimeOut, refreshTimeOut);
   }
 
   @Override
@@ -128,7 +132,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       throw new BadRequestException(AuthenticationMessage.USER_NOT_ACTIVE);
     }
 
-    return createJwtToken(users);
+    return createJwtToken(users, accessTimeOut, refreshTimeOut);
   }
 
   @Override
@@ -157,7 +161,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
-  public SignInResponse createJwtToken(Users user) throws NotFoundException {
+  public SignInResponse createJwtToken(Users user, int accessTokenExpired, int refreshTokenExpired)
+      throws NotFoundException {
+    Date now = new Date();
+    Date accessTokenExpiredTime = Utils.plusDate(now, Calendar.DATE, accessTimeOut);
+    Date refreshTokenExpiredTime = Utils.plusDate(now, Calendar.DATE, refreshTimeOut);
 
     if (ObjectUtils.isEmpty(user.getRole())) {
       throw new NotFoundException(AuthenticationMessage.USER_NOT_ACTIVE);
@@ -168,13 +176,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         .map(SimpleGrantedAuthority::new)
         .toList();
 
-    String uuid = UUID.randomUUID().toString();
+    String uuid = MDC.get(Constant.TRACE_ID);
     User loginUser = new User(user.getUserName(), uuid, roles);
 
     return SignInResponse.builder()
-        .accessToken(jwtService.generateToken(loginUser, uuid, endAfter, Constant.ACCESS))
-        .refreshToken(
-            jwtService.generateToken(loginUser, uuid, endAfter + extraTime, Constant.REFRESH))
+        .accessToken(jwtService.generateToken(loginUser, uuid, accessTokenExpiredTime, Constant.ACCESS))
+        .refreshToken(jwtService.generateToken(loginUser, uuid, refreshTokenExpiredTime, Constant.REFRESH))
         .roles(roles.stream().map(SimpleGrantedAuthority::getAuthority).toList())
         .haveMFA(user.isHaveMfa())
         .build();
@@ -193,7 +200,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             .orElseThrow(() -> new InternalException(AuthenticationMessage.ROLE_NOT_EXIST)))
         .isSSOUser(Boolean.TRUE)
         .build();
-    
+
     return authenticationRepository.save(user);
   }
 
@@ -257,7 +264,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
   }
 
- 
 
   private boolean isNotRightOtp(String otpSecret, String otpCode) {
     Base32 base32 = new Base32();
