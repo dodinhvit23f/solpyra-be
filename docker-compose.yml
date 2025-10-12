@@ -1,0 +1,21 @@
+services:
+  solpyra-be:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      tags:
+        - "solpyra-be:1.0.0"
+    container_name: solpyra-be
+
+    ports:
+      - "8088:8088"
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - solpyra
+
+# Use an existing external network
+networks:
+  solpyra:
+    external: true
