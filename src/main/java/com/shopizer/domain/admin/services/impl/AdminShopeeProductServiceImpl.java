@@ -5,7 +5,7 @@ import com.shopizer.common.dto.response.PageObject;
 import com.shopizer.constant.ApplicationMessage.AuthenticationMessage;
 import com.shopizer.domain.admin.dto.request.AdminProductListRequest;
 import com.shopizer.domain.admin.dto.request.AdminUpdateAffiliateLinkRequest;
-import com.shopizer.domain.admin.mapper.ShopeeProductMapper;
+import com.shopizer.domain.admin.mapper.AdminShopeeProductMapper;
 import com.shopizer.domain.admin.repositories.AdminShopeeProductRepository;
 import com.shopizer.domain.admin.services.AdminShopeeProductService;
 import com.shopizer.entities.QShopeeProduct;
@@ -22,7 +22,7 @@ import org.springframework.util.ObjectUtils;
 public class AdminShopeeProductServiceImpl implements AdminShopeeProductService {
 
   final AdminShopeeProductRepository shopeeProductRepository;
-  final ShopeeProductMapper shopeeProductMapper;
+  final AdminShopeeProductMapper shopeeProductMapper;
 
   @Override
   public void updateAffiliateLink(AdminUpdateAffiliateLinkRequest request)

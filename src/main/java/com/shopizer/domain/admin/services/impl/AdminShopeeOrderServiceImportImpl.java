@@ -3,7 +3,7 @@ package com.shopizer.domain.admin.services.impl;
 import com.shopizer.constant.ApplicationMessage;
 import com.shopizer.constant.Constant;
 import com.shopizer.constant.OrderStatus;
-import com.shopizer.domain.admin.mapper.ShopeeOrderMapper;
+import com.shopizer.domain.admin.mapper.AdminShopeeOrderMapper;
 import com.shopizer.domain.admin.repositories.AdminShopeeOrderRepository;
 import com.shopizer.domain.admin.repositories.AdminShopeeProductRepository;
 import com.shopizer.domain.admin.services.AdminShopeeOrderImportService;
@@ -20,8 +20,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -52,7 +52,7 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
 
   final AdminShopeeOrderRepository adminShopeeOrderRepository;
   final AdminShopeeProductRepository adminShopeeProductRepository;
-  final ShopeeOrderMapper shopeeOrderMapper;
+  final AdminShopeeOrderMapper shopeeOrderMapper;
 
   @Override
   public void importShopeeOrderByCsvFile(MultipartFile file) {
@@ -60,8 +60,7 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
 
     log.info("Start handle file {}", file.getOriginalFilename());
 
-    Map<String, ShopeeOrder> importOrders = getShopeeOrderList(file).stream()
-        .collect(Collectors.toMap(ShopeeOrder::getOrderId, Function.identity()));
+    Map<String, ShopeeOrder> importOrders = getShopeeOrderList(file);
 
     Map<String, ShopeeOrder> savedOrder = adminShopeeOrderRepository.findListShopeeOrdersByOrders(
             importOrders.keySet())
@@ -110,8 +109,8 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
     }
   }
 
-  private List<ShopeeOrder> getShopeeOrderList(MultipartFile file) {
-    List<ShopeeOrder> shopeeOrders = new ArrayList<>();
+  private Map<String, ShopeeOrder> getShopeeOrderList(MultipartFile file) {
+    Map<String, ShopeeOrder> shopeeOrders = new HashMap<>();
 
     try (CSVParser csvParser = cleanAndParse(file.getInputStream())) {
       for (CSVRecord record : csvParser) {
@@ -131,6 +130,11 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
             orderCompletedDate.plusDays(RANGE_RETURN_GOODS) : null;
 
         BigDecimal totalCommission = parseDecimal(record.get("Tổng hoa hồng đơn hàng(₫)"));
+
+        if(totalCommission.compareTo(BigDecimal.ONE) < 0) {
+            continue;
+        }
+
         BigDecimal userCommission = BigDecimal.ZERO;
         BigDecimal platformCommission = totalCommission;
 
@@ -147,7 +151,7 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
           platformCommissionRate = commissionRate.subtract(userCommissionRate);
         }
 
-        String status = record.get("Trạng thái đặt hàng");
+        OrderStatus status = convertStatus(record.get("Trạng thái đặt hàng").toLowerCase(), commissionedDate) ;
 
         ShopeeOrder order = ShopeeOrder.builder()
             .orderId(orderId)
@@ -160,11 +164,11 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
             .commissionRate(commissionRate)
             .userCommission(userCommission)
             .platformCommission(platformCommission)
-            .status(convertStatus(status.toLowerCase()))
+            .status(status)
             .product(product)
             .build();
 
-        shopeeOrders.add(order);
+        shopeeOrders.put(orderId, order);
       }
     } catch (
         Exception e) {
@@ -176,14 +180,19 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
   }
 
   private void mappingExistedOrder(Map<String, ShopeeOrder> importOrders,
-      Map<String, ShopeeOrder> savedOrder) {
+      Map<String, ShopeeOrder> savedOrders) {
     importOrders.forEach((orderId, shopeeOrder) -> {
-      if (savedOrder.containsKey(orderId)) {
-        shopeeOrderMapper.updateStatus(savedOrder.get(orderId), shopeeOrder);
+      if (!savedOrders.containsKey(orderId)) {
+        savedOrders.put(orderId, shopeeOrder);
+        return;
+      }
+      ShopeeOrder savedOrder = savedOrders.get(orderId);
+
+      if(savedOrder.getStatus().equals(OrderStatus.COMMISSIONED)){
         return;
       }
 
-      savedOrder.put(orderId, shopeeOrder);
+      shopeeOrderMapper.updateShopeeOrder(savedOrder, shopeeOrder);
     });
   }
 
@@ -238,20 +247,26 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
         .parse(reader);
   }
 
-  private OrderStatus convertStatus(String status) {
+  private OrderStatus convertStatus(String status, ZonedDateTime commissionedDate) {
+    OrderStatus orderStatus = OrderStatus.PENDING;
+
     if (status.equals("đang chờ xử lý")) {
-      return OrderStatus.IN_PROGRESS;
+      orderStatus =  OrderStatus.IN_PROGRESS;
     }
 
     if (status.equals("hoàn thành")) {
-      return OrderStatus.COMPLETED;
+      orderStatus =  OrderStatus.COMPLETED;
     }
 
-    if (status.contains("huỷ") || status.contains("hoàn")) {
-      return OrderStatus.CANCEL;
+    if (status.contains("huỷ")) {
+      orderStatus = OrderStatus.CANCEL;
     }
 
-    return OrderStatus.PENDING;
+    if(orderStatus.equals(OrderStatus.COMPLETED) && ZonedDateTime.now().isAfter(commissionedDate)) {
+      orderStatus =  OrderStatus.COMMISSIONED;
+    }
+
+    return orderStatus;
   }
 
   private ZonedDateTime parseDate(String value) {

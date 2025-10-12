@@ -4,7 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.shopizer.common.dto.response.PageObject;
 import com.shopizer.domain.admin.dto.request.AdminOrderListRequest;
-import com.shopizer.domain.admin.mapper.ShopeeOrderMapper;
+import com.shopizer.domain.admin.mapper.AdminShopeeOrderMapper;
 import com.shopizer.domain.admin.repositories.AdminShopeeOrderRepository;
 import com.shopizer.domain.admin.services.AdminShopeeOrderService;
 import com.shopizer.entities.QShopeeOrder;
@@ -25,7 +25,7 @@ public class AdminShopeeOrderServiceImpl implements AdminShopeeOrderService {
 
   final JPAQueryFactory jpaQueryFactory;
   final AdminShopeeOrderRepository adminShopeeOrderRepository;
-  final ShopeeOrderMapper shopeeOrderMapper;
+  final AdminShopeeOrderMapper shopeeOrderMapper;
 
   @Override
   public PageObject getOrderList(AdminOrderListRequest request) {

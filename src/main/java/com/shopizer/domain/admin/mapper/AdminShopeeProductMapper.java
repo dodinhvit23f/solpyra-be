@@ -5,7 +5,7 @@ import com.shopizer.entities.ShopeeProduct;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface ShopeeProductMapper {
+public interface AdminShopeeProductMapper {
 
   AdminShopeeProduct toAdminShopeeProductDto(ShopeeProduct entity);
 

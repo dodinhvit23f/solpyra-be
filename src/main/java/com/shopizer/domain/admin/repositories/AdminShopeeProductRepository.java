@@ -1,6 +1,5 @@
 package com.shopizer.domain.admin.repositories;
 
-import com.shopizer.entities.ShopeeOrder;
 import com.shopizer.entities.ShopeeProduct;
 import java.math.BigInteger;
 import java.util.Collection;
