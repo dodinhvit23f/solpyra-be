@@ -62,7 +62,7 @@ public class UsersShopeeOrderDSLRepository {
             order.userCommission,
             order.userCommissionRate,
             order.status,
-            userOrder.paymentApproved
+            product.affiliateLink
         ))
         .from(userOrder)
         .join(userOrder.product, product)

@@ -8,6 +8,7 @@ import com.shopizer.configuration.RabbitQueuesProperties.QueueProperties;
 import com.shopizer.constant.ApplicationMessage.AuthenticationMessage;
 import com.shopizer.constant.OrderStatus;
 import com.shopizer.domain.user.dto.UserShopeeOrder;
+import com.shopizer.domain.user.dto.UserShopeeProduct;
 import com.shopizer.domain.user.dto.request.UserAddOrderRequest;
 import com.shopizer.domain.user.dto.request.UserOrderListRequest;
 import com.shopizer.domain.user.mapper.UserShopeeOrderMapper;
@@ -23,10 +24,12 @@ import com.shopizer.exception.NotFoundException;
 import com.shopizer.rabbitmq.MessageProducer;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -98,5 +101,10 @@ public class UserShopeeOrderServiceImpl implements UserShopeeOrderService {
         .build();
 
     userShopeeOrderRepository.save(order);
+  }
+
+  @Override
+  public List<UserShopeeProduct> getTopProduct(int number, String name) {
+    return userShopeeOrderRepository.getTopProduct(name, PageRequest.of(0, number));
   }
 }

@@ -27,5 +27,5 @@ public class UserShopeeOrder {
   private BigDecimal userCommission;
   private BigDecimal userCommissionRate;
   private OrderStatus status;
-  private boolean paymentApproved;
+  private String affiliateLink;
 }
