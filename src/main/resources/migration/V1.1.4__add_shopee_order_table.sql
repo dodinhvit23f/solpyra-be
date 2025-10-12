@@ -20,7 +20,12 @@ CREATE TABLE IF NOT EXISTS shopee_order (
     platform_commission_rate NUMERIC(10,4),
 
     product_id BIGINT,
-    version BIGINT DEFAULT 0
+    version BIGINT DEFAULT 0,
+
+    created_by VARCHAR(255),
+    created_date TIMESTAMPTZ,
+    updated_by VARCHAR(255),
+    updated_date TIMESTAMPTZ
 );
 
 -- Create hash index for order_id (fast equality search)

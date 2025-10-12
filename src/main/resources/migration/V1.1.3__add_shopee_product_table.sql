@@ -7,7 +7,11 @@ CREATE TABLE IF NOT EXISTS shopee_product (
     product_name VARCHAR(1000),
     store_id VARCHAR(30),
     store_name VARCHAR(1000),
-    affiliate_link VARCHAR(1000)
+    affiliate_link VARCHAR(1000),
+    created_by VARCHAR(255),
+    created_date TIMESTAMPTZ,
+    updated_by VARCHAR(255),
+    updated_date TIMESTAMPTZ
 );
 
 -- Enable pg_trgm extension (for substring search)

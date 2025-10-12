@@ -14,6 +14,7 @@ import com.shopizer.exception.NotFoundException;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -69,10 +70,16 @@ public class SsoAuthenticationServiceImpl implements SsoAuthenticationService {
           AuthenticationMessage.EMAIL_NOT_VERIFIED);
     }
 
-    Users user = authenticationRepository.findByUserName(email)
-        .orElseGet(() -> authenticationService.saveSsoUser(email));
+    Optional<Users> usersOptional =  authenticationRepository.findByUserName(email);
 
+    if(usersOptional.isPresent() && !usersOptional.get().isSSOUser()) {
+      throw new NotFoundException(AuthenticationMessage.USER_NOT_EXIST);
+    }
 
-    return authenticationService.createJwtToken(user, accessTimeOut, refreshTimeOut);
+    if(usersOptional.isEmpty()){
+      usersOptional = Optional.of(authenticationService.saveSsoUser(email));
+    }
+
+    return authenticationService.createJwtToken(usersOptional.get(), accessTimeOut, refreshTimeOut);
   }
 }

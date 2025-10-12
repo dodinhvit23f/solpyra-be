@@ -7,7 +7,6 @@ import com.shopizer.domain.authentication.dto.response.SignInResponse;
 import com.shopizer.entities.Users;
 import com.shopizer.exception.NotFoundException;
 import java.io.ByteArrayOutputStream;
-import java.util.Date;
 import org.apache.coyote.BadRequestException;
 import org.springframework.transaction.annotation.Transactional;
 

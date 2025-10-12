@@ -41,7 +41,28 @@ spring:
       idle-timeout: 30000         # 30s - release idle connections
       max-lifetime: 600000        # 10m - recycle connections to avoid DB timeouts
       connection-timeout: 30000   # 30s - wait for connection
+  rabbitmq:
+    host: ENC(${RABBITMQ_HOST})
+    port: 56721
+    username: ENC(${RABBITMQ_USER})
+    password: ENC(${RABBITMQ_PASSWORD})
+    listener:
+      simple:
+        prefetch: 1
+        acknowledge-mode: manual
 
+
+rabbitmq:
+  queues:
+    add-order:
+      name: add-order.queue
+      exchange: add-order.exchange
+      routing-key: add-order.key
+    add-order-retry:
+      name: add-order.queue.retry
+      exchange: add-order.exchange
+      routing-key: add-order.key.retry
+      ttl: 86400000
 
 jasypt:
   encryptor:

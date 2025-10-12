@@ -20,6 +20,9 @@ public class ApplicationMessage {
     public static final String NOT_FOUND_GOOGLE_ID_TOKEN = "ERROR_016";
     public static final String ROLE_NOT_EXIST = "ERROR_017";
     public static final String EMAIL_NOT_VERIFIED = "ERROR_018";
+    public static final String ORDER_CODE_NOT_EMPTY = "ERROR_019";
+    public static final String ORDER_CODE_EXIST = "ERROR_020";
+    public static final String ORDER_NOT_EXIST = "ERROR_021";
   }
 
 }

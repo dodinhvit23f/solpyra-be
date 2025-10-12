@@ -1,6 +1,5 @@
 package com.shopizer.domain.authentication.controllers;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.shopizer.common.dto.response.Response;
 import com.shopizer.constant.Constant;
 import com.shopizer.domain.authentication.dto.request.GoogleSsoSignInRequest;

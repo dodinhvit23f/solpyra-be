@@ -2,35 +2,26 @@ package com.shopizer.advice;
 
 import com.shopizer.common.dto.response.Response;
 import com.shopizer.constant.Constant;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.shopizer.exception.NotFoundException;
 import jakarta.validation.ValidationException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
-
 import org.slf4j.MDC;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
@@ -51,6 +42,13 @@ public class GlobalExceptionHandleController {
   public Response<Object> handleUsernameNotFoundException(AuthenticationCredentialsNotFoundException e) {
     return getObjectResponse(e.getMessage());
   }
+
+  @ExceptionHandler({NotFoundException.class})
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public Response<Object> handleNotFoundException(NotFoundException e) {
+    return getObjectResponse(e.getMessage());
+  }
+
 
   @ExceptionHandler({MethodArgumentNotValidException.class})
   public Response<String> handleMethodArgumentNotValidException(
