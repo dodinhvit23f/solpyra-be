@@ -43,7 +43,7 @@ spring:
       connection-timeout: 30000   # 30s - wait for connection
   rabbitmq:
     host: ENC(${RABBITMQ_HOST})
-    port: 56721
+    port: ${RABBITMQ_PORT}
     username: ENC(${RABBITMQ_USER})
     password: ENC(${RABBITMQ_PASSWORD})
     listener:
