@@ -130,9 +130,19 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
             orderCompletedDate.plusDays(RANGE_RETURN_GOODS) : null;
 
         BigDecimal totalCommission = parseDecimal(record.get("Tổng hoa hồng đơn hàng(₫)"));
+        OrderStatus status = convertStatus(record.get("Trạng thái đặt hàng").toLowerCase(),
+            commissionedDate);
 
-        if(totalCommission.compareTo(BigDecimal.ONE) < 0) {
-            continue;
+        if (totalCommission.compareTo(BigDecimal.ONE) < 0) {
+          if (status.equals(OrderStatus.CANCEL)) {
+            shopeeOrders.put(orderId, ShopeeOrder.builder()
+                .orderId(orderId)
+                .orderDate(orderDate)
+                .product(product)
+                .status(OrderStatus.CANCEL)
+                .build());
+          }
+          continue;
         }
 
         BigDecimal userCommission = BigDecimal.ZERO;
@@ -150,8 +160,6 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
               BigDecimal.valueOf(USER_MAX_COMMISSION_RATE));
           platformCommissionRate = commissionRate.subtract(userCommissionRate);
         }
-
-        OrderStatus status = convertStatus(record.get("Trạng thái đặt hàng").toLowerCase(), commissionedDate) ;
 
         ShopeeOrder order = ShopeeOrder.builder()
             .orderId(orderId)
@@ -188,7 +196,7 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
       }
       ShopeeOrder savedOrder = savedOrders.get(orderId);
 
-      if(savedOrder.getStatus().equals(OrderStatus.COMMISSIONED)){
+      if (savedOrder.getStatus().equals(OrderStatus.COMMISSIONED)) {
         return;
       }
 
@@ -251,19 +259,20 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
     OrderStatus orderStatus = OrderStatus.PENDING;
 
     if (status.equals("đang chờ xử lý")) {
-      orderStatus =  OrderStatus.IN_PROGRESS;
+      orderStatus = OrderStatus.IN_PROGRESS;
     }
 
     if (status.equals("hoàn thành")) {
-      orderStatus =  OrderStatus.COMPLETED;
+      orderStatus = OrderStatus.COMPLETED;
     }
 
-    if (status.contains("huỷ")) {
+    if (status.contains("huỷ") || status.contains("hủy")) {
       orderStatus = OrderStatus.CANCEL;
     }
 
-    if(orderStatus.equals(OrderStatus.COMPLETED) && ZonedDateTime.now().isAfter(commissionedDate)) {
-      orderStatus =  OrderStatus.COMMISSIONED;
+    if (orderStatus.equals(OrderStatus.COMPLETED) && ZonedDateTime.now()
+        .isAfter(commissionedDate)) {
+      orderStatus = OrderStatus.COMMISSIONED;
     }
 
     return orderStatus;
