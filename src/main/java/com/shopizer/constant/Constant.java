@@ -20,4 +20,7 @@ public class Constant {
   public static final String USER = "USER";
   public static final String UN_VALIDATE = "UN_VALIDATE";
   public static final String TRACE_ID = "traceId";
+
+  public static final String SUCCESS = "SUCCESS";
+  public static final String FAILED = "FAILED";
 }

@@ -3,8 +3,10 @@ package com.shopizer.domain.schedule.services;
 import com.shopizer.configuration.RabbitQueuesProperties;
 import com.shopizer.configuration.RabbitQueuesProperties.QueueProperties;
 import com.shopizer.constant.CommissionOutboxStatus;
+import com.shopizer.constant.Constant;
 import com.shopizer.constant.OrderStatus;
 import com.shopizer.domain.schedule.dto.CommissionMessage;
+import com.shopizer.domain.schedule.dto.CommissionMessage.Order;
 import com.shopizer.domain.schedule.repositories.CommissionOutboxRepository;
 import com.shopizer.domain.schedule.repositories.ScheduleShopeeOrderRepository;
 import com.shopizer.entities.CommissionOutbox;
@@ -39,7 +41,8 @@ public class CommissionSchedulerServiceImpl implements CommissionSchedulerServic
 
   @Override
   public void createOutboxForEligibleOrders() {
-    ZonedDateTime cutoff = ZonedDateTime.of(LocalDate.now().minusDays(16).atStartOfDay(), ZoneOffset.systemDefault());
+    ZonedDateTime cutoff = ZonedDateTime.of(LocalDate.now().minusDays(16).atStartOfDay(),
+        ZoneOffset.systemDefault());
     List<UserPerShopeeOrder> eligibleOrders = orderRepository.findEligibleOrders(
         OrderStatus.COMPLETED, cutoff);
     log.info("Found {} orders eligible for commission", eligibleOrders.size());
@@ -87,11 +90,12 @@ public class CommissionSchedulerServiceImpl implements CommissionSchedulerServic
             .userId(record.getKey())
             .orders(record.getValue()
                 .stream()
-                .map(event -> new CommissionMessage.Order(event.getOrderId(), event.getCommission()))
+                .map(
+                    event -> new CommissionMessage.Order(event.getOrderId(), event.getCommission()))
                 .toList())
             .build();
 
-        producer.send(properties.getExchange(),properties.getRoutingKey(), message);
+        producer.send(properties.getExchange(), properties.getRoutingKey(), message);
 
         record.getValue().forEach(commissionMessage -> {
           commissionMessage.setStatus(CommissionOutboxStatus.SENT);
@@ -108,4 +112,29 @@ public class CommissionSchedulerServiceImpl implements CommissionSchedulerServic
       outboxRepository.saveAll(record.getValue());
     }
   }
+
+
+  @Override
+  public void processCallbackMessages(CommissionMessage message) {
+    List<BigInteger> orderIds = message.getOrders().stream().map(Order::getOrderId).toList();
+
+    if (message.getStatus().equals(Constant.SUCCESS)) {
+      List<ShopeeOrder> shopeeOrders = orderRepository.findShopeeOrderByIdIn(orderIds);
+      shopeeOrders.forEach(shopeeOrder -> shopeeOrder.setStatus(OrderStatus.COMMISSIONED));
+      orderRepository.saveAll(shopeeOrders);
+      return;
+    }
+
+    List<CommissionOutbox> events = outboxRepository.findByOrderIdIn(orderIds);
+
+    events.forEach(event -> {
+      event.setStatus(CommissionOutboxStatus.FAILED);
+      event.setRetry(message.getRetry());
+      event.setErrorMessage(event.getErrorMessage());
+    });
+
+    outboxRepository.saveAll(events);
+  }
+
 }
+

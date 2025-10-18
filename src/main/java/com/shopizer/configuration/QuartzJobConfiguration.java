@@ -51,7 +51,7 @@ public class QuartzJobConfiguration {
     return TriggerBuilder.newTrigger()
         .forJob(outboxPublisherJobDetail)
         .withIdentity("outboxPublisherTrigger")
-        .startAt(calculateDelayToNextHour())
+        //.startAt(calculateDelayToNextHour())
         .withSchedule(SimpleScheduleBuilder.repeatHourlyForever(12)) // run every 1 minute
         .build();
   }

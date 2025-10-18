@@ -24,22 +24,28 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class CommissionOutbox extends BaseEntity {
 
-    @Column(name = "order_id", nullable = false)
-    private BigInteger orderId;
+  @Column(name = "order_id", nullable = false)
+  private BigInteger orderId;
 
-    @Column(name = "user_id")
-    private BigInteger userId;
+  @Column(name = "user_id")
+  private BigInteger userId;
 
-    @Column(name = "commission")
-    private BigDecimal commission;
+  @Column(name = "commission")
+  private BigDecimal commission;
 
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "status", nullable = false)
-    private CommissionOutboxStatus status = CommissionOutboxStatus.PENDING;
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "status", nullable = false)
+  private CommissionOutboxStatus status = CommissionOutboxStatus.PENDING;
 
-    @Column(name = "created_at", nullable = false)
-    private ZonedDateTime createdAt = ZonedDateTime.now();
+  @Column(name = "retry", nullable = false)
+  private int retry;
 
-    @Column(name = "sent_at")
-    private ZonedDateTime sentAt;
+  @Column(name = "error_message", nullable = false)
+  private String errorMessage;
+
+  @Column(name = "created_at", nullable = false)
+  private ZonedDateTime createdAt = ZonedDateTime.now();
+
+  @Column(name = "sent_at")
+  private ZonedDateTime sentAt;
 }

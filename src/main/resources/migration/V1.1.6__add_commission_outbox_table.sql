@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS commission_outbox (
     commission NUMERIC(28,2),
     user_id BIGINT NOT NULL,
     status SMALLINT NOT NULL,
+    retry INT DEFAULT 0,
+    error_message VARCHAR(1000),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     sent_at TIMESTAMPTZ,
     version BIGINT DEFAULT 0

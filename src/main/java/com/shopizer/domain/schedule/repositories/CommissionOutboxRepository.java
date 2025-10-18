@@ -17,4 +17,6 @@ public interface CommissionOutboxRepository extends JpaRepository<CommissionOutb
         ORDER BY c.createdAt ASC
     """)
     List<CommissionOutbox> findByStatusOrderByCreatedAt(Collection<CommissionOutboxStatus> status);
+
+    List<CommissionOutbox> findByOrderIdIn(Collection<BigInteger> orderIds);
 }

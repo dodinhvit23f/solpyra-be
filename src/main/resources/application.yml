@@ -88,6 +88,10 @@ rabbitmq:
       name: commission-clac.queue
       exchange: commission-clac.exchange
       routing-key: commission-clac.key
+    commission-clac-callback:
+      name: commission-clac-callback.queue
+      exchange: commission-clac-callback.exchange
+      routing-key: commission-clac-callback.k
 
 jasypt:
   encryptor:
@@ -103,3 +107,22 @@ application:
     end-after: ${JWT_TIMEOUT}
     extra-time: ${JWT_EXTRA_TIME}
   white-list: ${WHITE_LIST}
+
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        SQL: DEBUG
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: TRACE
+#        orm:
+#          jdbc:
+#            bind: TRACE
+#      spring:
+#        framework:
+#          jdbc:
+#            core:
+#              JdbcTemplate: DEBUG
+#              StatementCreatorUtils: TRACE
