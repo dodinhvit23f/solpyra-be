@@ -5,5 +5,7 @@ public enum OrderStatus {
   PENDING,
   IN_PROGRESS,
   COMPLETED,
+  PENDING_COMMISSIONED,
   COMMISSIONED,
+
 }

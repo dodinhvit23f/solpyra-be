@@ -50,6 +50,27 @@ spring:
       simple:
         prefetch: 1
         acknowledge-mode: manual
+  # Quartz: JDBC job store + clustering (multi-instance safe)
+  quartz:
+    job-store-type: jdbc
+    jdbc.initialize-schema: never   # import quartz SQL trước (Quartz cung cấp file schema)
+    overwrite-existing-jobs: true
+    properties:
+      org.quartz.scheduler.instanceName: SolpyraBEScheduler
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.useProperties: true
+      org.quartz.jobStore.misfireThreshold: 300000
+      org.quartz.jobStore.isClustered: true
+      org.quartz.jobStore.dataSource: quartzDataSource
+      org.quartz.dataSource.quartzDataSource.provider: hikaricp
+      org.quartz.dataSource.quartzDataSource.driver: org.postgresql.Driver
+      org.quartz.dataSource.quartzDataSource.URL: ${spring.datasource.url}?currentSchema=${spring.datasource.hikari.schema}
+      org.quartz.dataSource.quartzDataSource.user: ${spring.datasource.username}
+      org.quartz.dataSource.quartzDataSource.password: ${spring.datasource.password}
+      org.quartz.dataSource.quartzDataSource.maxConnections: 5
+      org.quartz.threadPool.threadCount: 6
 
 
 rabbitmq:
@@ -63,6 +84,10 @@ rabbitmq:
       exchange: add-order.exchange
       routing-key: add-order.key.retry
       ttl: 86400000
+    commission-clac:
+      name: commission-clac.queue
+      exchange: commission-clac.exchange
+      routing-key: commission-clac.key
 
 jasypt:
   encryptor:

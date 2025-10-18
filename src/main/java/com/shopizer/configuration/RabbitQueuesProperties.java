@@ -13,6 +13,7 @@ public class RabbitQueuesProperties {
 
   private QueueProperties addOrder;
   private QueueProperties addOrderRetry;
+  private QueueProperties commissionClac;
 
     @Getter
     @Setter

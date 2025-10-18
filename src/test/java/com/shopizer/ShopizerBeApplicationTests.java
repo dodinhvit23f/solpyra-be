@@ -22,7 +22,10 @@ class ShopizerBeApplicationTests {
     config.setStringOutputType("base64");
     encryptor.setConfig(config);
 
-    System.out.println("jwt secret " + encryptor.encrypt("567926023935-meecus66b2tt54o1vfbq73rrd70d9f49.apps.googleusercontent.com") );
+
+    System.out.println("host " + encryptor.encrypt("D9ZbWkB9RM9gVhV7L79e7qAoFq0GZk3lU5Dd58aKJxZ=") );
+    System.out.println("database " + encryptor.encrypt("rabbitmq4.0") );
+    System.out.println("schema " + encryptor.encrypt("postgres17") );
   }
 
 }

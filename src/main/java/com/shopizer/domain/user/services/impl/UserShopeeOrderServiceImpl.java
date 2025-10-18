@@ -65,8 +65,7 @@ public class UserShopeeOrderServiceImpl implements UserShopeeOrderService {
 
     try {
       QueueProperties queue = rabbitQueuesProperties.getAddOrder();
-      producer.send(queue.getExchange(), queue.getRoutingKey(),
-          objectMapper.writeValueAsString(request));
+      producer.send(queue.getExchange(), queue.getRoutingKey(), request);
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e.getMessage());
     }
