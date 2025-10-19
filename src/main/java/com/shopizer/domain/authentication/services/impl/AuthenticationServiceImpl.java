@@ -83,12 +83,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     User userDetail = new User(user.getUserName(),
-        passwordEncoder.encode(signInRequest.getPassword()),
+        MDC.get(Constant.TRACE_ID),
         List.of(new SimpleGrantedAuthority(Constant.UN_VALIDATE)));
 
     String token = jwtService.generateToken(userDetail,
         MDC.get(Constant.TRACE_ID), Utils.plusDate(new Date(), Calendar.MINUTE, OTP_TIMEOUT),
-        Constant.ACCESS);
+        Constant.ACCESS, user.getId());
 
     return SignInResponse.builder()
         .haveMFA(user.isHaveMfa())
@@ -180,8 +180,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     User loginUser = new User(user.getUserName(), uuid, roles);
 
     return SignInResponse.builder()
-        .accessToken(jwtService.generateToken(loginUser, uuid, accessTokenExpiredTime, Constant.ACCESS))
-        .refreshToken(jwtService.generateToken(loginUser, uuid, refreshTokenExpiredTime, Constant.REFRESH))
+        .accessToken(jwtService.generateToken(loginUser, uuid, accessTokenExpiredTime, Constant.ACCESS, user.getId()))
+        .refreshToken(jwtService.generateToken(loginUser, uuid, refreshTokenExpiredTime, Constant.REFRESH, user.getId()))
         .roles(roles.stream().map(SimpleGrantedAuthority::getAuthority).toList())
         .haveMFA(user.isHaveMfa())
         .build();

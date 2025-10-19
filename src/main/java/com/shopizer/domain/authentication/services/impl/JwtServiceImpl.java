@@ -5,6 +5,7 @@ import com.shopizer.constant.Constant;
 import com.shopizer.domain.authentication.services.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.jasypt.encryption.StringEncryptor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -30,6 +32,7 @@ import org.springframework.util.ObjectUtils;
 public class JwtServiceImpl implements JwtService {
 
   final SecretKey secretKeyJwt;
+  final StringEncryptor encryptorBean;
 
   @Override
   public Optional<User> getUserFromJwtToken(String token) throws UsernameNotFoundException {
@@ -82,7 +85,8 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
-  public String generateToken(User userDetails, String uuid, Date expiryDate, String type) {
+  public String generateToken(User userDetails, String uuid, Date expiryDate, String type,
+      BigInteger userId) {
     Map<String, Object> claims = new HashMap<>();
 
     claims.put(Constant.USER_DETAIL, userDetails.getUsername());
@@ -92,6 +96,7 @@ public class JwtServiceImpl implements JwtService {
     claims.put(Constant.PASSWORD, userDetails.getPassword());
     claims.put(Constant.UUID, uuid);
     claims.put(Constant.TYPE, type);
+    claims.put(Constant.SALT, encryptorBean.encrypt(userId.toString()));
 
     return Jwts.builder()
         .claims(claims)
