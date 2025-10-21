@@ -43,7 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImportService {
 
   private static final double USER_MAX_COMMISSION_RATE = 0.6D;
-  private static final long COMMISSION_FOOL_PRICE = 5000L;
+  private static final long COMMISSION_FOOL_PRICE = 4000L;
   private static final DateTimeFormatter DATETIME_FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   private static final Pattern INVISIBLE_CHARS =
