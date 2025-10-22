@@ -83,7 +83,7 @@ rabbitmq:
       name: add-order.queue.retry
       exchange: add-order.exchange
       routing-key: add-order.key.retry
-      ttl: 86400000
+      ttl: 3600000
     commission-clac:
       name: commission-clac.queue
       exchange: commission-clac.exchange

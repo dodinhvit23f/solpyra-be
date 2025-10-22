@@ -46,7 +46,7 @@ public class AddOrderConsumer {
     } catch (BadRequestException e) {
       log.error("User {} tried to take assigned order ID {} ", request.getUserName(), request.getOrderCode(), e);
     } catch (NotFoundException e) {
-      if (retryCount < 2) {
+      if (retryCount < 72) {
         log.info("Sending retry message {} count {}  ", messageId, retryCount);
         QueueProperties retry = rabbitQueuesProperties.getAddOrderRetry();
         messageProducer.send(retry.getExchange(), retry.getRoutingKey(), retryCount, message);
