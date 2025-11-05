@@ -45,6 +45,14 @@ public class UserShopeeOrderController {
         .build());
   }
 
+  @GetMapping("/affiliate/product")
+  ResponseEntity<Response<String>> getRandomAffiliateLink() {
+    return ResponseEntity.ok(Response.<String>builder()
+        .data(userShopeeOrderService.getRandomAffiliateLink())
+        .traceId(MDC.get(Constant.TRACE_ID))
+        .build());
+  }
+
   @PostMapping("/add")
   ResponseEntity<Response> addOrder(@Valid @RequestBody UserAddOrderRequest request,
       Principal principal) {

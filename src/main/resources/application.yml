@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: shopizer-be
+  cache:
+    type: caffeine
+    cache-names:
+      - affiliate-link
   jpa:
     properties:
       naming:
@@ -107,6 +111,11 @@ application:
     end-after: ${JWT_TIMEOUT}
     extra-time: ${JWT_EXTRA_TIME}
   white-list: ${WHITE_LIST}
+
+caching:
+  caffeine:
+    specs:
+      affiliate-link: maximumSize=1, expireAfterWrite=10m
 
 #logging:
 #  level:

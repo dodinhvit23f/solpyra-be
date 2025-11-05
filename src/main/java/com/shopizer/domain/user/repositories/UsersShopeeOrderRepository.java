@@ -41,4 +41,16 @@ public interface UsersShopeeOrderRepository extends JpaRepository<UserPerShopeeO
         ORDER BY COUNT(uso.orderId) DESC
         """)
   List<UserShopeeProduct> getTopProduct(@Param("principalName") String principalName, Pageable pageable);
+
+  @Query(
+      value = """
+            SELECT sp.affiliate_link FROM shopee_order so
+           JOIN shopee_product sp ON sp.id = product_id                                                    \s
+           WHERE so.id >= FLOOR(RANDOM() * (SELECT MAX(id) FROM shopee_order))
+           ORDER BY so.id
+           LIMIT 1
+           """,
+      nativeQuery = true
+  )
+  String findRandomOrder();
 }

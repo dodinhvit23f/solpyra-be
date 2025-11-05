@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -100,6 +101,12 @@ public class UserShopeeOrderServiceImpl implements UserShopeeOrderService {
         .build();
 
     userShopeeOrderRepository.save(order);
+  }
+
+  @Override
+  @Cacheable(value = "affiliate-link")
+  public String getRandomAffiliateLink(){
+      return userShopeeOrderRepository.findRandomOrder();
   }
 
   @Override

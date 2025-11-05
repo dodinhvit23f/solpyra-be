@@ -63,7 +63,7 @@ public class QuartzJobConfiguration {
       return Date.from(now.toInstant());
     }
 
-    ZonedDateTime nextRun = now.withHour(now.getHour() + 1).withMinute(0).withSecond(0);
+    ZonedDateTime nextRun = now.withHour((now.getHour() + 1) % 24).withMinute(0).withSecond(0);
     return Date.from(nextRun.toInstant());
   }
 

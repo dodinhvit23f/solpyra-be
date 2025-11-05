@@ -19,5 +19,7 @@ public interface UserShopeeOrderService {
   void mapOrderForUser(UserAddOrderRequest request)
       throws BadRequestException, NotFoundException;
 
+  String getRandomAffiliateLink();
+
   List<UserShopeeProduct> getTopProduct(int number, String name);
 }
