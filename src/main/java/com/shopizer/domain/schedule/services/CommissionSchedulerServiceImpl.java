@@ -91,7 +91,11 @@ public class CommissionSchedulerServiceImpl implements CommissionSchedulerServic
             .orders(record.getValue()
                 .stream()
                 .map(
-                    event -> new CommissionMessage.Order(event.getOrderId(), event.getCommission()))
+                    event ->  CommissionMessage.Order.builder()
+                        .orderId(event.getOrderId())
+                        .commissionAmount(event.getCommission())
+                        .commissionDate(event.getCreatedAt())
+                        .build())
                 .toList())
             .build();
 

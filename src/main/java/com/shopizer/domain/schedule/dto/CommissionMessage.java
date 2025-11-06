@@ -27,6 +27,7 @@ public class CommissionMessage {
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
+  @Builder
   public static class Order {
     private BigInteger orderId;
     private BigDecimal commissionAmount;
