@@ -2,7 +2,7 @@ package com.shopizer.domain.admin.services.impl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.shopizer.common.dto.response.PageObject;
-import com.shopizer.constant.ApplicationMessage.AuthenticationMessage;
+import com.shopizer.constant.ApplicationMessage.ErrorMessage;
 import com.shopizer.domain.admin.dto.request.AdminProductListRequest;
 import com.shopizer.domain.admin.dto.request.AdminUpdateAffiliateLinkRequest;
 import com.shopizer.domain.admin.mapper.AdminShopeeProductMapper;
@@ -29,7 +29,7 @@ public class AdminShopeeProductServiceImpl implements AdminShopeeProductService 
       throws NotFoundException {
 
     ShopeeProduct shopeeProduct = shopeeProductRepository.findShopeeProductById(request.getId())
-        .orElseThrow(() -> new NotFoundException(AuthenticationMessage.PRODUCT_NOT_EXIST));
+        .orElseThrow(() -> new NotFoundException(ErrorMessage.PRODUCT_NOT_EXIST));
 
     shopeeProduct.setAffiliateLink(request.getAffiliateLink());
     shopeeProductRepository.save(shopeeProduct);

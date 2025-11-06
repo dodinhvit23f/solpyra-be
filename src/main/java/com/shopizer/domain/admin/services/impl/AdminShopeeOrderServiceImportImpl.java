@@ -1,6 +1,6 @@
 package com.shopizer.domain.admin.services.impl;
 
-import com.shopizer.constant.ApplicationMessage;
+import com.shopizer.constant.ApplicationMessage.ErrorMessage;
 import com.shopizer.constant.Constant;
 import com.shopizer.constant.OrderStatus;
 import com.shopizer.domain.admin.mapper.AdminShopeeOrderMapper;
@@ -19,10 +19,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -90,14 +88,14 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
     if (file.isEmpty()) {
       log.error("TraceId: {} File {} is empty", MDC.get(Constant.TRACE_ID),
           file.getOriginalFilename());
-      throw new IllegalArgumentException(ApplicationMessage.AuthenticationMessage.EMPTY_FILE);
+      throw new IllegalArgumentException(ErrorMessage.EMPTY_FILE);
     }
 
     // Check file extension
     String filename = file.getOriginalFilename();
     if (filename == null || !filename.toLowerCase().endsWith(".csv")) {
       throw new IllegalArgumentException(
-          ApplicationMessage.AuthenticationMessage.INVALID_FILE_TYPE);
+          ErrorMessage.INVALID_FILE_TYPE);
     }
 
     // Check MIME type (optional)
@@ -105,7 +103,7 @@ public class AdminShopeeOrderServiceImportImpl implements AdminShopeeOrderImport
     if (contentType == null ||
         !(contentType.equals("text/csv") || contentType.equals("application/vnd.ms-excel"))) {
       throw new IllegalArgumentException(
-          ApplicationMessage.AuthenticationMessage.INVALID_CONTENT_TYPE);
+          ErrorMessage.INVALID_CONTENT_TYPE);
     }
   }
 

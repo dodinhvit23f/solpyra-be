@@ -22,10 +22,6 @@ class ShopizerBeApplicationTests {
     config.setStringOutputType("base64");
     encryptor.setConfig(config);
 
-
-    System.out.println("host " + encryptor.encrypt("D9ZbWkB9RM9gVhV7L79e7qAoFq0GZk3lU5Dd58aKJxZ=") );
-    System.out.println("database " + encryptor.encrypt("rabbitmq4.0") );
-    System.out.println("schema " + encryptor.encrypt("postgres17") );
   }
 
 }

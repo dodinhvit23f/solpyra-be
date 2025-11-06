@@ -1,6 +1,6 @@
 package com.shopizer.domain.authentication.services.impl;
 
-import com.shopizer.constant.ApplicationMessage;
+import com.shopizer.constant.ApplicationMessage.ErrorMessage;
 import com.shopizer.constant.Constant;
 import com.shopizer.domain.authentication.services.JwtService;
 import io.jsonwebtoken.Claims;
@@ -42,7 +42,7 @@ public class JwtServiceImpl implements JwtService {
     String password = claims.get(Constant.PASSWORD, String.class);
 
     if (ObjectUtils.isEmpty(claims.get(Constant.AUTHORITY))) {
-      throw new UsernameNotFoundException(ApplicationMessage.AuthenticationMessage.AUTHORITY_IS_EMPTY);
+      throw new UsernameNotFoundException(ErrorMessage.AUTHORITY_IS_EMPTY);
     }
 
     List<SimpleGrantedAuthority> authorities = claims.get(Constant.AUTHORITY, List.class).stream()

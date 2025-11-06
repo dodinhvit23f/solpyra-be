@@ -2,7 +2,7 @@ package com.shopizer.domain.authentication.services.impl;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.shopizer.constant.ApplicationMessage.AuthenticationMessage;
+import com.shopizer.constant.ApplicationMessage.ErrorMessage;
 import com.shopizer.domain.authentication.dto.request.GoogleSsoSignInRequest;
 import com.shopizer.domain.authentication.dto.response.SignInResponse;
 import com.shopizer.domain.authentication.repositories.AuthenticationRepository;
@@ -54,7 +54,7 @@ public class SsoAuthenticationServiceImpl implements SsoAuthenticationService {
 
     if (Objects.isNull(idToken)) {
       throw new AuthenticationCredentialsNotFoundException(
-          AuthenticationMessage.NOT_FOUND_GOOGLE_ID_TOKEN);
+          ErrorMessage.NOT_FOUND_GOOGLE_ID_TOKEN);
     }
 
     GoogleIdToken.Payload payload = idToken.getPayload();
@@ -67,13 +67,13 @@ public class SsoAuthenticationServiceImpl implements SsoAuthenticationService {
     if (!emailVerified) {
       log.error("Email {} not verified", email);
       throw new AuthenticationCredentialsNotFoundException(
-          AuthenticationMessage.EMAIL_NOT_VERIFIED);
+          ErrorMessage.EMAIL_NOT_VERIFIED);
     }
 
     Optional<Users> usersOptional =  authenticationRepository.findByUserName(email);
 
     if(usersOptional.isPresent() && !usersOptional.get().isSSOUser()) {
-      throw new NotFoundException(AuthenticationMessage.USER_NOT_EXIST);
+      throw new NotFoundException(ErrorMessage.USER_NOT_EXIST);
     }
 
     if(usersOptional.isEmpty()){

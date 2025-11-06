@@ -1,6 +1,6 @@
 package com.shopizer.domain.authentication.dto.request;
 
-import com.shopizer.constant.ApplicationMessage;
+import com.shopizer.constant.ApplicationMessage.ErrorMessage;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,8 +13,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChangePasswordRequest {
-    @NotEmpty(message = ApplicationMessage.AuthenticationMessage.OLD_PASSWORD_NOT_EMPTY)
+    @NotEmpty(message = ErrorMessage.OLD_PASSWORD_NOT_EMPTY)
     String oldPassword;
-    @NotEmpty(message = ApplicationMessage.AuthenticationMessage.NEW_PASSWORD_NOT_EMPTY)
+    @NotEmpty(message = ErrorMessage.NEW_PASSWORD_NOT_EMPTY)
     String newPassword;
 }
