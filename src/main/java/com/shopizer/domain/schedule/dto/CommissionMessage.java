@@ -2,6 +2,7 @@ package com.shopizer.domain.schedule.dto;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,5 +30,6 @@ public class CommissionMessage {
   public static class Order {
     private BigInteger orderId;
     private BigDecimal commissionAmount;
+    private ZonedDateTime commissionDate;
   }
 }

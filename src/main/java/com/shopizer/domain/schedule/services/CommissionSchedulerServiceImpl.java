@@ -57,7 +57,7 @@ public class CommissionSchedulerServiceImpl implements CommissionSchedulerServic
           .userId(order.getUserId())
           .commission(shopeeOrder.getUserCommission())
           .status(CommissionOutboxStatus.PENDING)
-          .createdAt(ZonedDateTime.now())
+          .createdAt(shopeeOrder.getCommissionedDate())
           .build();
 
       shopeeOrder.setStatus(OrderStatus.PENDING_COMMISSIONED);
