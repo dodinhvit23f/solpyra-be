@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.slf4j.MDC;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +70,7 @@ public class FileUploadController {
       drive.permissions().create(googleFile.getId(), permission).execute();
 
       return ResponseEntity.ok(Response.<String>builder()
-          .traceId(UUID.randomUUID().toString())
+          .traceId(MDC.get(Constant.TRACE_ID))
           .data(googleFile.getId())
           .build());
     } catch (Exception e) {
