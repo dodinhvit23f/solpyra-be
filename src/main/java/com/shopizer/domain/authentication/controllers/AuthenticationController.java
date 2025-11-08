@@ -32,6 +32,7 @@ public class AuthenticationController {
   ResponseEntity<Response<SignInResponse>> login(@Valid @RequestBody SignInRequest signInRequest)
       throws NotFoundException {
     return ResponseEntity.ok(Response.<SignInResponse>builder()
+        .traceId(MDC.get(Constant.TRACE_ID))
         .data(authenticationService.signIn(signInRequest))
         .build());
   }
@@ -55,6 +56,7 @@ public class AuthenticationController {
       @RequestBody SignInWithOTPRequest signInWithOTPRequest)
       throws BadRequestException, NotFoundException {
     return ResponseEntity.ok(Response.<SignInResponse>builder()
+        .traceId(MDC.get(Constant.TRACE_ID))
         .data(authenticationService.signInWithMFA(otpToken, signInWithOTPRequest.getOtp()))
         .build());
   }
@@ -68,6 +70,7 @@ public class AuthenticationController {
   ResponseEntity<Response<SignInResponse>> getNewToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String refreshToken)
       throws BadRequestException, NotFoundException {
     return ResponseEntity.ok(Response.<SignInResponse>builder()
+        .traceId(MDC.get(Constant.TRACE_ID))
         .data(authenticationService.refreshToken(refreshToken))
         .build());
   }

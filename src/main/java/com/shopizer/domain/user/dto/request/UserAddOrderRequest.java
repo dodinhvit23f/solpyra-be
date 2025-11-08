@@ -10,5 +10,5 @@ public class UserAddOrderRequest {
 
   @NotEmpty(message = ErrorMessage.ORDER_CODE_NOT_EMPTY)
   String orderCode;
-  String  userName;
+  String userName;
 }
