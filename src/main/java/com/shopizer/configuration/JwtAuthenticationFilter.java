@@ -2,7 +2,7 @@ package com.shopizer.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopizer.common.dto.response.Response;
-import com.shopizer.constant.ApplicationMessage;
+import com.shopizer.constant.ApplicationMessage.ErrorMessage;
 import com.shopizer.domain.authentication.services.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -79,12 +79,12 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
       if (ObjectUtils.isEmpty(jwtToken) ||
           !jwtService.validateJwtToken(jwtToken)) {
         throw new AuthenticationCredentialsNotFoundException(
-            ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN);
+            ErrorMessage.INVAlID_TOKEN);
       }
 
       User userDetail = jwtService.getUserFromJwtToken(jwtToken)
           .orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
-              ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN));
+              ErrorMessage.INVAlID_TOKEN));
 
       UsernamePasswordAuthenticationToken authenticationToken =
           new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
@@ -99,9 +99,9 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setContentType("application/json");
       response.getWriter().write(objectMapper.writeValueAsString(Response.<Object>builder()
-          .errorCodes(Set.of(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN))
-          .extraMessage(Map.of(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN,
-              messageSource.getMessage(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN, null,
+          .errorCodes(Set.of(ErrorMessage.INVAlID_TOKEN))
+          .extraMessage(Map.of(ErrorMessage.INVAlID_TOKEN,
+              messageSource.getMessage(ErrorMessage.INVAlID_TOKEN, null,
                   Locale.getDefault())))
           .traceId(UUID.randomUUID().toString())
           .build()));

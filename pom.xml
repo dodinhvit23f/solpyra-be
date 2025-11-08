@@ -39,6 +39,7 @@
     <jjwt-api.version>0.12.5</jjwt-api.version>
     <commons-csv.version>1.14.0</commons-csv.version>
     <mapstruct.version>1.6.3</mapstruct.version>
+    <google-auth-library-oauth2-http.version>1.33.0</google-auth-library-oauth2-http.version>
   </properties>
   <dependencies>
     <dependency>
@@ -126,6 +127,12 @@
       <groupId>com.google.oauth-client</groupId>
       <artifactId>google-oauth-client-jetty</artifactId>
       <version>${google-oauth-client-jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.auth</groupId>
+      <artifactId>google-auth-library-oauth2-http</artifactId>
+      <version>${google-auth-library-oauth2-http.version}</version>
     </dependency>
 
     <dependency>

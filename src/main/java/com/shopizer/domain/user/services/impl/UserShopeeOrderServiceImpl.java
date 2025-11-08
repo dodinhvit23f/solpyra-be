@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopizer.common.dto.response.PageObject;
 import com.shopizer.configuration.RabbitQueuesProperties;
 import com.shopizer.configuration.RabbitQueuesProperties.QueueProperties;
-import com.shopizer.constant.ApplicationMessage.AuthenticationMessage;
+import com.shopizer.constant.ApplicationMessage.ErrorMessage;
 import com.shopizer.constant.OrderStatus;
 import com.shopizer.domain.user.dto.UserShopeeOrder;
 import com.shopizer.domain.user.dto.UserShopeeProduct;
@@ -80,7 +80,7 @@ public class UserShopeeOrderServiceImpl implements UserShopeeOrderService {
         request.getOrderCode());
 
     if (userOrder.isPresent()) {
-      throw new BadRequestException(AuthenticationMessage.ORDER_CODE_EXIST);
+      throw new BadRequestException(ErrorMessage.ORDER_CODE_EXIST);
     }
 
     Users user = userRepository.getByUserName(request.getUserName());
@@ -89,7 +89,7 @@ public class UserShopeeOrderServiceImpl implements UserShopeeOrderService {
 
     if (userShopeeOrder.isEmpty() ||
         userShopeeOrder.get().getUserCommission().compareTo(BigDecimal.ONE) < 0) {
-      throw new NotFoundException(AuthenticationMessage.ORDER_NOT_EXIST);
+      throw new NotFoundException(ErrorMessage.ORDER_NOT_EXIST);
     }
 
     UserPerShopeeOrder order = UserPerShopeeOrder.builder()

@@ -1,7 +1,7 @@
 package com.shopizer.constant;
 
 public class ApplicationMessage {
-  public static class AuthenticationMessage {
+  public static class ErrorMessage {
     public static final String USER_NOT_EXIST = "ERROR_001";
     public static final String AUTHORITY_IS_EMPTY = "ERROR_002";
     public static final String USERNAME_IS_EMPTY = "ERROR_003";
@@ -23,6 +23,8 @@ public class ApplicationMessage {
     public static final String ORDER_CODE_NOT_EMPTY = "ERROR_019";
     public static final String ORDER_CODE_EXIST = "ERROR_020";
     public static final String ORDER_NOT_EXIST = "ERROR_021";
+    public static final String FILE_UPLOAD_FAIL = "ERROR_022";
+    public static final String FILE_UPLOAD_NOT_VALID_TYPE = "ERROR_023";
   }
 
 }
