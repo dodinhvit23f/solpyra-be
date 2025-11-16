@@ -1,6 +1,7 @@
 package com.shopizer.configuration;
 
 import com.shopizer.constant.Constant;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -69,7 +70,8 @@ public class SecurityConfiguration {
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
             .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH", "OPTIONS")
-            .allowedOriginPatterns("*");
+            .allowedOriginPatterns("*")
+            .allowedHeaders("*", "x-forwarded-for");
       }
     };
   }
