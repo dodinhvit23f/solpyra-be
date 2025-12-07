@@ -107,7 +107,7 @@ application:
     credential: ENC(${GOOGLE_DRIVE_CREDENTIAL})
     client-id: ENC(${GOOGLE_CLIENT_ID})
   jwt:
-    secret: ENC(${JWT_SECRET})
+    secret: ${JWT_SECRET}
     end-after: ${JWT_TIMEOUT}
     extra-time: ${JWT_EXTRA_TIME}
   white-list: ${WHITE_LIST}
