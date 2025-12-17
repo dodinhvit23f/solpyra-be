@@ -9,24 +9,12 @@
     <version>3.4.10</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
-  <groupId>com.shopizer</groupId>
-  <artifactId>shopizer-be</artifactId>
+  <groupId>com.solpyra</groupId>
+  <artifactId>solpyra-be</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>shopizer-be</name>
-  <description>shopizer-be</description>
-  <url/>
-  <licenses>
-    <license/>
-  </licenses>
-  <developers>
-    <developer/>
-  </developers>
-  <scm>
-    <connection/>
-    <developerConnection/>
-    <tag/>
-    <url/>
-  </scm>
+  <name>solpyra-be</name>
+  <description>solpyra-be</description>
+
   <properties>
     <java.version>21</java.version>
     <google.zxing.version>3.3.0</google.zxing.version>
@@ -42,6 +30,13 @@
     <google-auth-library-oauth2-http.version>1.33.0</google-auth-library-oauth2-http.version>
   </properties>
   <dependencies>
+
+    <dependency>
+      <groupId>com.solpyra</groupId>
+      <artifactId>solpyra-common</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
